@@ -1,0 +1,47 @@
+<!-- Search Bar -->
+<div class="search-bar-wrapper">
+  <div id="search-bar-block" class="search-bar search-bar-hidden">
+    <form id="search-bar-form" action="/search/" method="get" autocomplete="off">
+
+      <select name="field" id="search-bar-form-field" class="form-select search-bar-select">
+        <option disabled selected value>
+          {% if initial_ids %}
+            Search within results...
+          {% else %}
+            Search by...
+          {% endif %}
+        </option>
+        <option value="keyword">Keyword</option>
+        <option value="location">Location</option>
+        <option value="geography">Geography</option>
+        <option value="provenance_name">Provenance Name</option>
+        <option value="collection">Specific Features</option>
+        <option value="year">Year</option>
+        <option value="stc">STC / Wing #</option>
+        <option value="census_id">{{ COPY_ID_PREFIX }} #</option>
+      </select>
+
+      <label for="search-bar-form-text" class="visually-hidden-focusable">
+        {% if initial_ids %}
+          Search within these results
+        {% else %}
+          Search terms
+        {% endif %}
+      </label>
+
+      <input type="text" name="value" id="search-bar-form-text" class="form-input search-bar-input" placeholder="Search...">
+      <input type="submit" id="search-bar-form-submit" class="form-button search-bar-button" value="Submit">
+
+      {% if initial_ids %}
+        {% for id in initial_ids %}
+          <input type="hidden" name="initial_ids" value="{{ id }}">
+        {% endfor %}
+      {% endif %}
+
+      {% if field %}
+        <input type="hidden" name="initial_field" value="{{ field }}">
+        <input type="hidden" name="initial_value" value="{{ value|default_if_none:'All' }}">
+      {% endif %}
+    </form>
+  </div>
+</div>

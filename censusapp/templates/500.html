@@ -1,0 +1,19 @@
+{% extends 'census/base.html' %}
+{% load static %}
+{% block content %}
+
+<div style="text-align: center;">
+    <div class="message-text">
+        500: Server error
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <img src="{% static 'census/images/ghost.png' %}" class="default-icon" alt="Error icon">
+</div>
+
+<div class="text-center mt-3">
+    <a href="{% url 'homepage' %}" class="attention-link">Return to Homepage</a>
+</div>
+
+{% endblock content %}
