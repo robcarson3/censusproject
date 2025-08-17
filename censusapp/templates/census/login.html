@@ -1,0 +1,35 @@
+{% extends 'census/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Login page -->
+<div style="max-width: 360px; margin: 0 auto">
+
+    {% if failed %}
+        <div style="text-align: center;">
+            <div class="message-text">
+                We could not find your account. Perhaps you've mistyped your username or password?
+            </div>
+        </div>
+    {% else %}
+        <div style="text-align: center;">
+            <div class="message-text">
+                Please enter your username and password.
+            </div>
+        </div>
+    {% endif %}
+
+    <form method="post" action="">
+        {% csrf_token %}
+        <div class="mb-1">
+            <input type="text" name="username" class="form-input login-input" placeholder="Username" required autofocus>
+        </div>
+        <div class="mb-1">
+            <input type="password" name="password" class="form-input login-input" placeholder="Password" required>
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="form-button login-button">Login</button>
+    </form>
+</div>
+
+{% endblock content %}

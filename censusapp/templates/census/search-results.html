@@ -1,0 +1,162 @@
+{% extends "census/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+
+<!-- Search Results Header -->
+<table class="results-header-table">
+    <tr>
+        <td class="results-header-icon" rowspan="3">
+            <div class="results-header-icon-border">
+                <img class="results-header-icon-image" src="{% static icon_path %}">
+            </div>
+        </td>
+        <td class="results-header-title">
+            Search Results
+        </td>
+    </tr>
+    <tr>
+        <td class="results-header-text">
+            {% if field == "collection" and value == "ghost" %}
+                Ghost Copies
+            {% elif initial_field and initial_value %}
+                {{ display_field }}{% if display_value != "All" %}: {{ display_value }}{% endif %}<br>
+                <span class="text-muted small">
+                    (within {{ initial_display_field }}: "{{ initial_value }}")
+                </span>
+            {% else %}
+                {{ display_field }}{% if display_value != "All" %}: {{ display_value }}{% endif %}
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td class="results-header-text">
+            {% if field == "collection" and value == "ghost" %}
+                <span>{{ copy_count }} Records</span>
+            {% else %}
+                <span>Extant copies: {{ copy_count }}</span>
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+<!-- Results Table -->
+{% if result_list %}
+    <table class="results-table">
+        <thead>
+            <tr class="results-table-header">
+                <th class="search-results-number">
+                    <a href="{% url 'search' %}?field={{ field }}&value={{ value }}&order=census_id">
+                        {{ COPY_ID_PREFIX }}&#8239;#
+                    </a>
+                    <i class="fas fa-caret-down{% if order != 'census_id' %} hidden-icon{% endif %}"></i>
+                </th>
+
+                <th class="search-results-year">
+                    <a href="{% url 'search' %}?field={{ field }}&value={{ value }}&order=date">
+                        Year
+                    </a>
+                    <i class="fas fa-caret-down{% if order != 'date' %} hidden-icon{% endif %}"></i>
+                </th>
+
+                <th class="search-results-title">
+                    <a href="{% url 'search' %}?field={{ field }}&value={{ value }}&order=title">
+                        Title
+                    </a>
+                    <i class="fas fa-caret-down{% if order != 'title' %} hidden-icon{% endif %}"></i>
+                </th>
+
+                <th class="search-results-location">
+                    <a href="{% url 'search' %}?field={{ field }}&value={{ value }}&order=location">
+                        Location
+                    </a>
+                    <i class="fas fa-caret-down{% if order != 'location' %} hidden-icon{% endif %}"></i>
+                </th>
+
+                <th class="search-results-stcwing">
+                    <a href="{% url 'search' %}?field={{ field }}&value={{ value }}&order=stc">
+                        STC&#8239;/&#8239;Wing
+                    </a>
+                    <i class="fas fa-caret-down{% if order != 'stc' %} hidden-icon{% endif %}"></i>
+                </th>
+                <th class="search-results-fragment"></th>
+                <th class="search-results-facsimile"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for copy in result_list %}
+                <tr class="results-table-row search-results-table-row">
+                    <td class="search-results-number">
+                        {% if copy.census_id and copy.census_id != '0' %}
+                            <a href="#" data-form="{% url 'copy_data' copy.pk %}" title="Details">
+                                {{ copy.census_id }}
+                            </a>
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                        {% if user.is_staff %}
+                            <span class="note-text">[<a href="{% url 'admin:censusapp_copy_change' copy.id %}">Edit&nbsp;copy</a>]</span>
+                        {% endif %}
+                    </td>
+                    <td class="search-results-year">
+                        <a href="#" data-form="{% url 'copy_data' copy.pk %}" title="Details">
+                            {{ copy.issue.year }}
+                        </a>
+                    </td>
+                    <td class="search-results-title">
+                        <a href="#" data-form="{% url 'copy_data' copy.pk %}" title="Details">
+                            {{ copy.issue.edition.title }}
+                        </a>
+                    </td>
+                    <td class="search-results-location">
+                        <a href="#" data-form="{% url 'copy_data' copy.pk %}" title="Details">
+                            {{ copy.location.name }}
+                        </a>
+                    </td>
+                    <td class="search-results-stcwing">
+                        <a href="{% url 'copy_list' copy.issue.id %}" target="_blank" rel="noopener noreferrer" title="Go to Edition">
+                            {{ copy.issue.stc_wing }}&nbsp;<i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </td>
+                    <td class="search-results-fragment">
+                        {% if copy.fragment %}
+                            <span title="This copy is a fragment.">
+                                <i class="fas fa-industry"></i>
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="search-results-facsimile">
+                        {% if copy.digital_facsimile_url %}
+                            <span title="Link to a digital facsimile of this copy.">
+                                <a href="{{ copy.digital_facsimile_url }}" target="_blank" rel="noopener noreferrer">
+                                    <i class="fas fa-camera-retro"></i>
+                                </a>
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <!-- No results fallback -->
+    <div style="text-align: center;">
+        <div class="message-text">
+            No copies found.
+        </div>
+    </div>
+{% endif %}
+
+<!-- Modal container -->
+<div id="copyModal" class="modal fade" tabindex="-1" aria-hidden="true"></div>
+
+<!-- Modal behavior script -->
+<script src="{% static 'census/js/copy-detail-modal.js' %}"></script>
+
+{% if open_modal_id %}
+  <script>
+    window.open_modal_id = "{{ open_modal_id }}";
+  </script>
+{% endif %}
+
+{% endblock content %}

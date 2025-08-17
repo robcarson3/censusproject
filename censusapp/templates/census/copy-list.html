@@ -1,0 +1,180 @@
+{% extends "census/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+
+<!-- Page Header -->
+<table class="results-header-table">
+    <tr>
+        <!-- Icon cell, vertically spanning three rows -->
+        <td class="results-header-icon" rowspan="3">
+            <div class="results-header-icon-border">
+                <a href="{% url 'issue_list' title.id %}">
+                    {% if title.image %}
+                        <img class="results-header-icon-image" src="{{ title.image.url }}">
+                    {% else %}
+                        <img class="default-icon" src="{% static icon_path %}">
+                    {% endif %}
+                </a>
+            </div>
+        </td>
+
+        <!-- Title cell -->
+        <td class="results-header-title">
+            <a href="{% url 'issue_list' title.id %}">
+                {{ title.title }}
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td class="results-header-text">
+            {% if selected_issue %}
+                <span class="me-3">
+                    {% if selected_issue.edition.edition_number.isdigit %}
+                        {{ selected_issue.edition.edition_number|ordinal }} Edition
+                    {% else %}
+                        {{ selected_issue.edition.edition_number }}
+                    {% endif %}
+                    {% if selected_issue.edition.edition_format %}
+                        ({{ selected_issue.edition.edition_format }})
+                    {% endif %}
+                </span>
+
+                <span class="me-3">{{ selected_issue.year }}</span>
+                
+                <span class="me-3">STC&#8239;/&#8239;Wing: {{ selected_issue.stc_wing }}</span>
+
+                <span class="me-3">
+                    {% if selected_issue.estc %}
+                        {% if ";" in selected_issue.estc %}
+                            ESTC:
+                            {% for estc, is_last in selected_issue.estc_as_list %}
+                                <a class="attention-link" href="https://datb.cerl.org/estc/{{ estc }}" target="_blank" rel="noopener noreferrer">{{ estc }}</a>{% if not is_last %}; {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            ESTC: <a class="attention-link" href="https://datb.cerl.org/estc/{{ selected_issue.estc }}" target="_blank" rel="noopener noreferrer">{{ selected_issue.estc }}</a>
+                        {% endif %}
+                    {% else %}
+                        Not in ESTC
+                    {% endif %}
+                </span>
+
+                <span class="me-3">
+                    {% if selected_issue.deep %}
+                        {% if ";" in selected_issue.deep %}
+                            DEEP:
+                            {% for deep, is_last in selected_issue.deep_as_list %}
+                                <a class="attention-link" href="https://deepplaybooks.org/{{ deep }}" target="_blank" rel="noopener noreferrer">{{ deep }}</a>{% if not is_last %}; {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            DEEP: <a class="attention-link" href="https://deepplaybooks.org/{{ selected_issue.deep }}" target="_blank" rel="noopener noreferrer">{{ selected_issue.deep }}</a>
+                        {% endif %}
+                    {% else %}
+                        Not in DEEP
+                    {% endif %}
+                </span>
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td class="results-header-text">
+            {% if copy_count > 0 %}
+                Extant copies: {{ copy_count }}
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+<!-- Results Table -->
+{% if copies %}
+    <table class="results-table">
+        <thead>
+            <tr class="results-table-header">
+                <th class="copy-list-number">{{ COPY_ID_PREFIX }}&#8239;#</th>
+                <th class="copy-list-location">Location</th>
+                <th class="copy-list-shelfmark">Shelfmark</th>
+                <th class="copy-list-verified"></th>
+                <th class="copy-list-fragment"></th>
+                <th class="copy-list-facsimile"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for copy in copies %}
+                <tr class="results-table-row copy-list-table-row">
+                    <td class="copy-list-number">
+                        {% if copy.census_id and copy.census_id != '0' %}
+                            <a href="#" data-form="{% url 'copy_data' copy.pk %}" title="Details">
+                                {{ copy.census_id }}
+                            </a>
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                        {% if user.is_staff %}
+                            <span class="note-text">[<a href="{% url 'admin:censusapp_copy_change' copy.id %}">Edit&nbsp;copy</a>]</span>
+                        {% endif %}
+                    </td>
+                    <td class="copy-list-location">
+                        <a href="#" data-form="{% url 'copy_data' copy.pk %}" title="Details">
+                            {{ copy.location.name }}
+                        </a>
+                    </td>
+                    <td class="copy-list-shelfmark">
+                        {% if copy.shelfmark %}
+                            <a href="#" data-form="{% url 'copy_data' copy.pk %}" title="Details">
+                                {{ copy.shelfmark }}
+                            </a>
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                    </td>
+                    <td class="copy-list-verified">
+                        {% if copy.from_estc and copy.verification == "U" %}
+                            <span title="The existence of this copy has not been verified; its location has been derived from ESTC." class="symbol-crossout">&#x20E0;</span>
+                        {% elif copy.verification == "U" %}
+                            <span title="The existence of this copy has not been verified; its location has been attested online or in print." class="symbol-crossout">&#x20E0;</span>
+                        {% elif copy.verification == "V" %}
+                            <span title="This existence of this copy at the location has been verified." class="symbol-checkmark">&#x2713;</span>
+                        {% endif %}
+                    </td>
+                    <td class="copy-list-fragment">
+                        {% if copy.fragment %}
+                            <span title="This copy is a fragment.">
+                                <i class="fas fa-industry"></i>
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="copy-list-facsimile">
+                        {% if copy.digital_facsimile_url %}
+                            <span title="Link to a digital facsimile of this copy.">
+                                <a href="{{ copy.digital_facsimile_url }}" target="_blank" rel="noopener noreferrer">
+                                    <i class="fas fa-camera-retro"></i>
+                                </a>
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <!-- No copies fallback -->
+    <div style="text-align: center;">
+        <div class="message-text">
+            No copies are available.
+        </div>
+    </div>
+{% endif %}
+
+<!-- Modal container -->
+<div id="copyModal" class="modal fade" tabindex="-1" aria-hidden="true"></div>
+
+<!-- Modal behavior script -->
+{% if open_modal_id %}
+  <script>
+    window.open_modal_id = "{{ open_modal_id }}";
+  </script>
+{% endif %}
+
+<script src="{% static 'census/js/copy-detail-modal.js' %}?v=12345"></script>
+
+{% endblock content %}

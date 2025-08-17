@@ -1,0 +1,11 @@
+{% load static %}
+
+<footer class="footer-text">
+    <div class="footer-border">
+        <nav>
+            <a class="footer-link" href="{% url 'info' 'advisoryboard' %}">advisory board</a>
+            <a class="footer-link" href="{% url 'info' 'references' %}">references</a>
+            <a class="footer-link" href="mailto:{{ CENSUS_EMAIL }}">contact</a>
+        </nav>
+      </div>
+</footer>

@@ -1,0 +1,39 @@
+{% extends 'census/base.html' %}
+{% load static %}
+{% block content %}
+
+<table class="frontpage-table">
+    {% for row in titlerows %}
+        <tr>
+            <!-- Icon row -->
+            {% for title in row %}
+                <td class="frontpage-title-icon-cell">
+                    <div class="frontpage-title-icon-wrapper">
+                        <div class="frontpage-title-border">
+                            <a href="{% url 'issue_list' title.id %}">
+                                {% if title.image %}
+                                    <img src="{{ title.image.url }}" class="frontpage-title-icon">
+                                {% else %}
+                                    <img src="{% static icon_path %}" class="default-icon">
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            {% endfor %}
+        </tr>
+
+        <tr>
+            <!-- Title row -->
+            {% for title in row %}
+                <td class="frontpage-title-text">
+                    <div class="frontpage-title-label">
+                        <a href="{% url 'issue_list' title.id %}" class="linkbutton">{{ title.title }}</a>
+                    </div>
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock content %}

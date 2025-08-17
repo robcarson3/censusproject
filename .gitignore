@@ -1,0 +1,104 @@
+# --- Synchronization should not include the database, local settings, or media files ---
+db.sqlite3
+local_settings.py
+censusapp/media/titleicon/*.png
+
+# --- Ignore generated static files ---
+/static/
+
+# --- Ignore compressed/hashed files from WhiteNoise ---
+*.gz
+*.br
+
+# --- Environment files ---
+.env
+*.env
+
+# --- Virtual environments ---
+venv/
+env/
+
+# --- VS Code settings ---
+.vscode/
+
+# --- The remainder of this list was created by https://www.gitignore.io ---
+
+# OSX 
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+### Python ###
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+
+### Django ###
+*.log
+*.pot
+*.pyc
