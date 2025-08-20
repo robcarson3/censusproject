@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from .utils import split_record
+from .utils import split_record, format_issue_label
 
 
 # --- TextChoices (employed by other models) --- 
@@ -61,7 +61,7 @@ class Title(models.Model):
 
 class Edition(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name='editions')
-    edition_number = models.IntegerField(unique=False, blank=False)
+    edition_number = models.PositiveIntegerField(unique=False, blank=False, db_index=True)
     edition_format = models.CharField(max_length=10, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
@@ -70,12 +70,22 @@ class Edition(models.Model):
 
 class Issue(models.Model):
     edition = models.ForeignKey(Edition, unique=False, on_delete=models.CASCADE, related_name='issues')
-    stc_wing = models.CharField('STC / Wing', max_length=20, blank=True, null=True, default='[Unknown]')
-    estc = models.CharField('ESTC', max_length=20, blank=False, null=False, db_index=True)
+    issue_number = models.PositiveIntegerField(null=True, blank=True, db_index=True)
+    unknown_issue = models.BooleanField(default=False)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["edition", "issue_number"],
+                name="uniq_issue_number_per_edition",
+            )
+        ]
+        ordering = ["edition__edition_number", "unknown_issue", "issue_number"]
+    stc_wing = models.CharField('STC / Wing', max_length=20, blank=True, null=True)
+    estc = models.CharField('ESTC', max_length=20, blank=True, null=False)
+    deep = models.CharField('DEEP', max_length=20, blank=True, null=True)
     year = models.CharField(max_length=20, blank=True, null=True)
     start_date = models.IntegerField(blank=True, default=0)
     end_date = models.IntegerField(blank=True, default=0)
-    deep = models.CharField('DEEP', max_length=20, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
     def estc_as_list(self):
@@ -85,7 +95,14 @@ class Issue(models.Model):
         return split_record(self.deep)
 
     def __str__(self):
-        return f"{self.edition} {self.estc}"
+        total = self.edition.issues.count()
+        if total <= 1:
+            suffix = ""
+        elif self.issue_number is not None:
+            suffix = f" — Issue {self.issue_number}"
+        else:
+            suffix = " — Issue x"
+        return f"{self.edition.title} (Edition {self.edition.edition_number}){suffix}"
 
 class Copy(models.Model):
     issue = models.ForeignKey(Issue, unique=False, on_delete=models.CASCADE, related_name='copies')

@@ -1,10 +1,9 @@
-from datetime import datetime
-import csv
 from django.http import HttpResponse, JsonResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q, Count
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.shortcuts import render
 from django.views.decorators.http import require_GET
 from . import models
 from .utils import (
@@ -14,7 +13,9 @@ from .utils import (
     verified_query, unverified_query, canonical_query, 
     get_display_field, get_collection,
 )
-
+from datetime import datetime
+from collections import Counter
+import csv
 
 # --- Main Pages ---
 
@@ -34,8 +35,16 @@ def homepage(request):
 def issue_list(request, id):
     selected_title = get_object_or_404(models.Title, pk=id)
     editions = list(selected_title.editions.order_by('edition_number'))
-    issues = [issue for ed in editions for issue in ed.issues.all()]
-    issues.sort(key=issue_sort_key)
+    issues_qs = (
+        models.Issue.objects
+        .filter(edition__in=editions)
+        .select_related("edition")
+        .order_by("edition__edition_number", "unknown_issue", "issue_number")
+    )
+    issues = list(issues_qs)
+    counts = Counter(i.edition_id for i in issues)
+    for i in issues:
+        i.edition._issue_count = counts[i.edition_id]   
     copy_count = models.Copy.objects.filter(canonical_query, issue__in=issues).count()
     context = {
         'title': selected_title,

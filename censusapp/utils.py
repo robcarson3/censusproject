@@ -31,9 +31,20 @@ def convert_year_range(year):
 def split_record(field_value):
     if not field_value:
         return []
-    items = [part.strip() for part in str(field_value).split(';') if part.strip()]
-    return [(item, (i + 1) == len(items)) for i, item in enumerate(items)]
+    return [part.strip() for part in str(field_value).split(';') if part.strip()]
 # This function allows for certain records to be split into two results by means of a semicolon
+
+def format_issue_label(issue) -> str:
+    edition_number = getattr(issue.edition, "edition_number", None) or str(issue.edition.pk)
+    total = getattr(issue.edition, "_issue_count", None)
+    if total is None:
+        total = issue.edition.issues.count()
+    if total <= 1:
+        return f"{edition_number}"
+    if issue.issue_number is not None:
+        return f"{edition_number}.{issue.issue_number}"
+    return f"{edition_number}.x"
+# This function generates a label for each issue (either the edition number, or edition.issue, or edition.x).
 
 
 # --- Sorting functions for Titles and Issues ---
@@ -50,9 +61,11 @@ def title_sort_key(title_object):
 def issue_sort_key(issue):
     try:
         ed_number = int(issue.edition.edition_number)
-    except ValueError:
-        ed_number = float('inf') 
-    return (ed_number, issue.start_date, issue.end_date, issue.stc_wing)
+    except (TypeError, ValueError):
+        ed_number = float('inf')
+    unknown_sort = 1 if getattr(issue, "unknown_issue", False) else 0
+    num_sort = issue.issue_number if issue.issue_number is not None else 10**9
+    return (ed_number, unknown_sort, num_sort)
 
 
 # --- Sorting Functions for Copies ---

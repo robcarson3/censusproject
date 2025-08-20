@@ -345,20 +345,22 @@ li {
   width: 80px;
   height: 80px;
   border-radius: 20px;
+  margin: 0;
+  display: block;
 }
 
 /* --- Frontpage Layout --- */
 
 .frontpage-table {
-  width: auto;
-  max-width: 760px; 
+  width: clamp(526px, 100%, 760px);
   margin: 0 auto;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .frontpage-title-icon-cell {
   vertical-align: top;
-  width: auto;
+  width: 150px;
   padding: 0.0625rem;
   box-sizing: content-box;
   line-height: normal;
@@ -381,6 +383,10 @@ li {
   border: 1px solid;
   border-radius: 100px;
   box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
 }
 
 .frontpage-title-icon {
@@ -389,11 +395,12 @@ li {
   margin: 0.625rem;
   border-radius: 20px;
   box-sizing: content-box;
+  display: block;
 }
 
 .frontpage-title-text {
   vertical-align: middle;
-  width: auto;
+  width: 150px;
   padding: 0.0625rem;
   box-sizing: content-box;
   font-size: 0.875rem;
@@ -407,6 +414,9 @@ li {
   padding: 0.25rem 0 1.25rem 0;
   box-sizing: content-box;
   line-height: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
 }
 
 .linkbutton {
@@ -436,7 +446,9 @@ li {
 }
 
 .results-header-icon-border {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 102px;
   height: 102px;
   margin: 0 auto;

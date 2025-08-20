@@ -3,83 +3,90 @@
 {% block content %}
 
 {% if editions %}
-    <!-- Header -->
-    <table class="results-header-table">
-        <tr>
-            <!-- Title icon (vertically spanning three rows) -->
-            <td class="results-header-icon" rowspan="3">
-                <div class="results-header-icon-border">
-                    {% if title.image %}
-                        <img class="results-header-icon-image" src="{{ title.image.url }}">
-                    {% else %}
-                        <img class="default-icon" src="{% static icon_path %}">
-                    {% endif %}
-                </div>
-            </td>
-
-            <!-- Title cell -->
-            <td class="results-header-title">
-                {{ title.title }}
-                {% if user.is_authenticated %}
-                    <span class="edit-link">
-                        [<a href="{% url 'admin:censusapp_title_change' title.id %}">Edit title</a>]
-                    </span>
+<!-- Header -->
+<table class="results-header-table">
+    <tr>
+        <!-- Title icon (vertically spanning three rows) -->
+        <td class="results-header-icon" rowspan="3">
+            <div class="results-header-icon-border">
+                {% if title.image %}
+                <img class="results-header-icon-image" src="{{ title.image.url }}">
+                {% else %}
+                <img class="default-icon" src="{% static icon_path %}">
                 {% endif %}
-            </td>
-        </tr>
-        <tr>
-            <td class="results-header-text">
-                All editions
-            </td>
-        </tr>
-        <tr>
-            <td class="results-header-text">
-                Extant copies: {{ copy_count }}
-            </td>
-        </tr>
-    </table>
+            </div>
+        </td>
 
-    <!-- Editions Table -->
-    <table class="results-table">
-        <tr class="results-table-header">
-            <th class="issue-list-edition">Edition</th>
-            <th class="issue-list-year">Year</th>
-            <th class="issue-list-stc">STC / Wing</th>
-            <th class="issue-list-estc">ESTC</th>
-        </tr>
-        {% for issue in issues %}
-            <tr class="results-table-row issue-list-table-row">
-                <td class="issue-list-edition">
-                    <a href="{% url 'copy_list' issue.id %}">
-                        {{ issue.edition.edition_number|capfirst }}
-                    </a>
-                    {% if user.is_staff %}
-                        <span class="note-text">[<a href="{% url 'admin:censusapp_edition_change' issue.edition.id %}">Edit edition</a>]</span>
-                    {% endif %}
-                </td>
-                <td class="issue-list-year">
-                    <a href="{% url 'copy_list' issue.id %}">{{ issue.year }}</a>
-                </td>
-                <td class="issue-list-stc">
-                    <a href="{% url 'copy_list' issue.id %}">{{ issue.stc_wing }}</a>
-                </td>
-                <td class="issue-list-estc">
-                    <a href="{% url 'copy_list' issue.id %}">{{ issue.estc }}</a>
-                    {% if user.is_staff %}
-                        <span class="note-text">[<a href="{% url 'admin:censusapp_issue_change' issue.id %}">Edit issue</a>]</span>
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
+        <!-- Title cell -->
+        <td class="results-header-title">
+            {{ title.title }}
+            {% if user.is_authenticated %}
+            <span class="edit-link">
+                [<a href="{% url 'admin:censusapp_title_change' title.id %}">Edit title</a>]
+            </span>
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td class="results-header-text">
+            All editions
+        </td>
+    </tr>
+    <tr>
+        <td class="results-header-text">
+            Extant copies: {{ copy_count }}
+        </td>
+    </tr>
+</table>
+
+<!-- Editions Table -->
+<table class="results-table">
+    <tr class="results-table-header">
+        <th class="issue-list-edition">Edition</th>
+        <th class="issue-list-year">Year</th>
+        <th class="issue-list-stc">STC / Wing</th>
+        <th class="issue-list-estc">ESTC</th>
+    </tr>
+    {% for issue in issues %}
+    <tr class="results-table-row issue-list-table-row">
+        <td class="issue-list-edition">
+            <a href="{% url 'copy_list' issue.id %}">
+                {% if issue.issue_number != None %}
+                {{ issue.edition.edition_number }}.{{ issue.issue_number }}
+                {% elif issue.unknown_issue %}
+                {{ issue.edition.edition_number }}.x
+                {% else %}
+                {{ issue.edition.edition_number }}
+                {% endif %}
+            </a>
+            {% if user.is_staff %}
+            <span class="note-text">[<a href="{% url 'admin:censusapp_edition_change' issue.edition.id %}">Edit
+                    edition</a>]</span>
+            {% endif %}
+        </td>
+        <td class="issue-list-year">
+            <a href="{% url 'copy_list' issue.id %}">{{ issue.year }}</a>
+        </td>
+        <td class="issue-list-stc">
+            <a href="{% url 'copy_list' issue.id %}">{{ issue.stc_wing }}</a>
+        </td>
+        <td class="issue-list-estc">
+            <a href="{% url 'copy_list' issue.id %}">{{ issue.estc }}</a>
+            {% if user.is_staff %}
+            <span class="note-text">[<a href="{% url 'admin:censusapp_issue_change' issue.id %}">Edit issue</a>]</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 
 {% else %}
-    <!-- No editions fallback -->
-    <div style="text-align: center;">
-        <div class="message-text">
-            No editions are available.
-        </div>
+<!-- No editions fallback -->
+<div style="text-align: center;">
+    <div class="message-text">
+        No editions are available.
     </div>
+</div>
 {% endif %}
 
 {% endblock content %}
